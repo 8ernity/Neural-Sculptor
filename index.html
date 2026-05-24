@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI Face-Mesh Sculptor - Real-time 3D WebGL glass sculpture deformed dynamically by facial expressions and head movements using TensorFlow.js and Three.js.">
+  <title>NEURAL SCULPTOR // AI Face-Mesh Sculptor</title>
+  
+  <!-- Premium Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  
+  <!-- Custom Styling -->
+  <link rel="stylesheet" href="style.css?v=5">
+  
+  <!-- Three.js (WebGL 3D Engine) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <!-- TensorFlow.js (Full Bundle - single reliable script) -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+  
+  <!-- MediaPipe Face Mesh Model (v0.0.3 - last version with old API) -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection@0.0.3/dist/face-landmarks-detection.min.js"></script>
+</head>
+<body>
+
+  <!-- Fullscreen WebGL Canvas for 3D Glass Sculpture -->
+  <canvas id="webgl-canvas"></canvas>
+
+  <!-- Hidden webcam video element for AI model input -->
+  <video id="webcam" autoplay playsinline muted></video>
+
+  <!-- Premium Absolute-Positioned Webcam Preview -->
+  <div id="webcam-preview-container">
+    <canvas id="webcam-preview-canvas"></canvas>
+    <div id="webcam-scanner-line"></div>
+    <div id="webcam-glow-ring"></div>
+  </div>
+
+  <!-- Minimalist Glassmorphic Header Overlay -->
+  <header id="control-header">
+    <div class="header-content">
+      <div class="brand">
+        <div class="brand-glow"></div>
+        <h1>NEURAL SCULPTOR</h1>
+        <p class="subtitle">AI Facial Expression Mapping Engine</p>
+      </div>
+      <div class="telemetry">
+        <button id="rescan-btn" class="export-button" title="Re-scan Face" style="display: none;">
+          <span class="btn-icon">↺</span>
+          <span class="btn-text">RE-SCAN</span>
+        </button>
+        <button id="export-glb-btn" class="export-button" title="Export 3D Model" style="display: none;">
+          <span class="btn-icon">⬇</span>
+          <span class="btn-text">EXPORT .GLB</span>
+        </button>
+        <div class="telemetry-divider"></div>
+        <div class="telemetry-item">
+          <span class="label">FPS</span>
+          <span id="fps-counter" class="value">00</span>
+        </div>
+        <div class="telemetry-divider"></div>
+        <div class="telemetry-item">
+          <span class="label">STATUS</span>
+          <span id="tracking-status" class="value searching">SEARCHING</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Capture Actions UI -->
+  <div id="capture-ui" class="hidden">
+    <button id="capture-btn" class="capture-button">
+      <div class="capture-glow"></div>
+      <span>CAPTURE & GENERATE MODEL</span>
+    </button>
+  </div>
+
+  <!-- Topology Scan Progress (Shows when face is first detected) -->
+  <div id="topology-scan-ui" class="hidden">
+    <div class="topology-text" id="topology-scan-text">ANALYZING FACIAL TOPOLOGY... 0%</div>
+    <div class="topology-bar-container">
+      <div id="topology-bar-fill" class="topology-bar-fill"></div>
+    </div>
+  </div>
+
+  <!-- Countdown Overlay -->
+  <div id="countdown-overlay" class="hidden">
+    <div class="countdown-text" id="countdown-text">3</div>
+    <div class="camera-flash" id="camera-flash"></div>
+  </div>
+
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div class="loader-container">
+      <div class="neural-nodes">
+        <div class="connection c1"></div>
+        <div class="connection c2"></div>
+        <div class="connection c3"></div>
+        <div class="node n1"></div>
+        <div class="node n2"></div>
+        <div class="node n3"></div>
+        <div class="node n4"></div>
+      </div>
+      <div class="neon-spinner"></div>
+      <div class="loading-text-container">
+        <h2>INITIALIZING NEURAL NET</h2>
+        <p class="loading-subtext">LOADING FACEMESH TOPOLOGY</p>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+      </div>
+      <div id="progress-percent" style="font-family: monospace; font-size: 0.75rem; color: var(--neon-cyan); letter-spacing: 2px; margin-top: 8px; font-weight: bold; text-shadow: 0 0 8px rgba(0, 255, 204, 0.4);">0%</div>
+    </div>
+  </div>
+
+  <!-- MediaPipe FaceMesh Tessellation Data (468 vertices, 898 triangles) -->
+  <script src="face_triangles.js"></script>
+
+  <!-- Custom Logic -->
+  <script src="script.js?v=10"></script>
+</body>
+</html>

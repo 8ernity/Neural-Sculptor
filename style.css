@@ -1,0 +1,732 @@
+/* ==========================================================================
+   AI FACE-MESH SCULPTOR - CORE DESIGN SYSTEM
+   Premium aesthetics, Glassmorphism, Neon Telemetry, and Smooth Transitions
+   ========================================================================== */
+
+/* Color Tokens */
+:root {
+  --bg-deep-space: #010103;
+  --neon-cyan: #00ffcc;
+  --neon-cyan-glow: rgba(0, 255, 204, 0.4);
+  --neon-cyan-dim: rgba(0, 255, 204, 0.15);
+  --neon-magenta: #ff007f;
+  --neon-magenta-glow: rgba(255, 0, 127, 0.4);
+  --glass-bg: rgba(6, 6, 12, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-border-active: rgba(0, 255, 204, 0.25);
+  --text-primary: #f0f0f5;
+  --text-muted: #8e8e9f;
+  --font-outfit: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Global Resets & Body Setup */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+body {
+  background-color: var(--bg-deep-space);
+  color: var(--text-primary);
+  font-family: var(--font-outfit);
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Fullscreen WebGL Canvas */
+#webgl-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: all;
+}
+
+/* Off-screen active webcam stream to maintain active decoding */
+#webcam {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  opacity: 0;
+  width: 640px;
+  height: 480px;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   UI OVERLAYS & GLASSMORPHIC INTERFACES
+   ========================================================================== */
+
+/* 1. Webcam Preview Window (Top-Right) */
+#webcam-preview-container {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 140px;
+  height: 105px;
+  border-radius: 12px;
+  overflow: hidden;
+  z-index: 10;
+  background: rgba(1, 1, 3, 0.8);
+  border: 2px solid var(--neon-cyan-dim);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 255, 204, 0.1);
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+}
+
+#webcam-preview-container.active {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 25px var(--neon-cyan-glow);
+}
+
+#webcam-preview-container.blink-active {
+  border-color: var(--neon-magenta);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 25px var(--neon-magenta-glow);
+}
+
+#webcam-preview-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* Mirror camera feed */
+  display: block;
+}
+
+/* Holographic Webcam Scanner Line */
+#webcam-scanner-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+  box-shadow: 0 0 8px var(--neon-cyan);
+  animation: scan 3s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+@keyframes scan {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}
+
+/* 2. Glassmorphic Header (Top-Center) */
+#control-header {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: calc(100% - 350px);
+  max-width: 600px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 14px 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  transition: all 0.4s ease;
+}
+
+#control-header:hover {
+  border-color: var(--glass-border-active);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 255, 204, 0.05);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-glow {
+  position: absolute;
+  top: -10px;
+  left: -20px;
+  width: 80px;
+  height: 20px;
+  background: radial-gradient(circle, var(--neon-cyan-glow) 0%, transparent 70%);
+  filter: blur(5px);
+  pointer-events: none;
+}
+
+.brand h1 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, #ffffff 30%, #00ffcc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.subtitle {
+  font-size: 0.65rem;
+  font-family: var(--font-inter);
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* Telemetry readout */
+.telemetry {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.telemetry-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.telemetry-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.telemetry-item .label {
+  font-size: 0.55rem;
+  font-family: var(--font-inter);
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+}
+
+.telemetry-item .value {
+  font-size: 0.85rem;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  margin-top: 1px;
+}
+
+#fps-counter {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 8px rgba(0, 255, 204, 0.3);
+}
+
+#tracking-status {
+  transition: all 0.3s ease;
+}
+
+#tracking-status.searching {
+  color: var(--neon-magenta);
+  text-shadow: 0 0 8px rgba(255, 0, 127, 0.3);
+  animation: pulse-searching 1.5s infinite ease-in-out;
+}
+
+#tracking-status.active {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 8px rgba(0, 255, 204, 0.5);
+}
+
+@keyframes pulse-searching {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Export GLB Button */
+.export-button {
+  background: rgba(0, 255, 204, 0.1);
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  color: var(--neon-cyan);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+  font-family: var(--font-inter);
+  backdrop-filter: blur(4px);
+}
+
+.export-button:hover {
+  background: rgba(0, 255, 204, 0.2);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 12px rgba(0, 255, 204, 0.4);
+  transform: translateY(-1px);
+}
+
+.export-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 0 4px rgba(0, 255, 204, 0.4);
+}
+
+.btn-icon {
+  font-size: 0.8rem;
+}
+
+.btn-text {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* 3. Floating Interactive Help Pill (Bottom-Center) */
+#help-pill {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  background: rgba(6, 6, 12, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 10px 24px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: slide-up 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: all 0.3s ease;
+}
+
+#help-pill:hover {
+  border-color: var(--glass-border-active);
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 255, 204, 0.1);
+}
+
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--neon-cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--neon-cyan);
+  animation: dot-pulse 1.8s infinite ease-in-out;
+}
+
+.pill-text {
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  color: var(--text-primary);
+  font-weight: 300;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.4; }
+  50% { transform: scale(1.4); opacity: 1; box-shadow: 0 0 12px var(--neon-cyan); }
+}
+
+@keyframes slide-up {
+  0% { transform: translate(-50%, 40px); opacity: 0; }
+  100% { transform: translate(-50%, 0); opacity: 1; }
+}
+
+/* 4. Audio Shield overlay */
+#audio-shield {
+  position: absolute;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9;
+  cursor: pointer;
+  animation: fade-in-shield 1s ease-out;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+#audio-shield.hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-20px);
+  pointer-events: none;
+}
+
+.shield-box {
+  background: rgba(255, 0, 127, 0.08);
+  border: 1px solid rgba(255, 0, 127, 0.2);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 8px 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  animation: shield-glow 2s infinite ease-in-out;
+}
+
+.shield-icon {
+  animation: sound-bounce 1s infinite alternate ease-in-out;
+}
+
+.shield-box p {
+  font-size: 0.7rem;
+  font-family: var(--font-inter);
+  letter-spacing: 0.8px;
+  color: #ffb3d1;
+  text-transform: uppercase;
+}
+
+@keyframes fade-in-shield {
+  from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes shield-glow {
+  0%, 100% { border-color: rgba(255, 0, 127, 0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+  50% { border-color: rgba(255, 0, 127, 0.6); box-shadow: 0 4px 20px rgba(255, 0, 127, 0.15); }
+}
+
+@keyframes sound-bounce {
+  from { transform: scale(0.9); }
+  to { transform: scale(1.1); }
+}
+
+/* ==========================================================================
+   5. PREMIUM GLASSMORPHIC LOADING SCREEN
+   ========================================================================== */
+#loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(2, 2, 5, 0.96);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 1s cubic-bezier(0.85, 0, 0.15, 1), visibility 1s;
+}
+
+#loading-screen.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+  max-width: 450px;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Neural Node Animation */
+.neural-nodes {
+  width: 80px;
+  height: 80px;
+  position: relative;
+}
+
+.node {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: var(--neon-cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--neon-cyan);
+  animation: node-flash 2s infinite ease-in-out;
+}
+
+.node.n1 { top: 10px; left: 34px; animation-delay: 0s; }
+.node.n2 { top: 54px; left: 10px; animation-delay: 0.5s; }
+.node.n3 { top: 54px; left: 58px; animation-delay: 1s; }
+.node.n4 { top: 34px; left: 34px; animation-delay: 1.5s; background-color: var(--neon-magenta); box-shadow: 0 0 12px var(--neon-magenta); }
+
+.connection {
+  position: absolute;
+  background: linear-gradient(90deg, var(--neon-cyan), transparent);
+  height: 1px;
+  opacity: 0.3;
+  transform-origin: left center;
+}
+
+.connection.c1 {
+  top: 16px;
+  left: 40px;
+  width: 48px;
+  transform: rotate(115deg);
+}
+
+.connection.c2 {
+  top: 16px;
+  left: 40px;
+  width: 48px;
+  transform: rotate(65deg);
+}
+
+.connection.c3 {
+  top: 60px;
+  left: 16px;
+  width: 48px;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
+}
+
+@keyframes node-flash {
+  0%, 100% { transform: scale(1); opacity: 0.5; filter: brightness(1); }
+  50% { transform: scale(1.3); opacity: 1; filter: brightness(1.5); }
+}
+
+/* Neon Circular Spinner */
+.neon-spinner {
+  width: 50px;
+  height: 50px;
+  border: 2px solid rgba(0, 255, 204, 0.05);
+  border-top: 2px solid var(--neon-cyan);
+  border-right: 2px solid var(--neon-cyan-glow);
+  border-radius: 50%;
+  animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.05);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text-container h2 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 5px;
+  color: #fff;
+  margin-bottom: 8px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.loading-subtext {
+  font-size: 0.65rem;
+  font-family: var(--font-inter);
+  letter-spacing: 2px;
+  color: var(--text-muted);
+}
+
+/* Elegant Slim Progress Bar */
+.progress-bar-container {
+  width: 240px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon-magenta), var(--neon-cyan));
+  box-shadow: 0 0 8px var(--neon-cyan);
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN & MOBILE HACKS
+   ========================================================================== */
+@media (max-width: 768px) {
+  #control-header {
+    width: calc(100% - 48px);
+    top: 16px;
+    padding: 12px 18px;
+  }
+  
+  .brand h1 {
+    font-size: 0.95rem;
+    letter-spacing: 2.5px;
+  }
+  
+  .subtitle {
+    font-size: 0.55rem;
+    letter-spacing: 1px;
+  }
+
+  .telemetry {
+    gap: 10px;
+  }
+  
+  .telemetry-item .value {
+    font-size: 0.75rem;
+  }
+  
+  #webcam-preview-container {
+    top: auto;
+    bottom: 24px;
+    right: 24px;
+    width: 100px;
+    height: 75px;
+  }
+
+  #help-pill {
+    bottom: 110px;
+    padding: 8px 16px;
+    width: calc(100% - 48px);
+  }
+
+  .pill-text {
+    font-size: 0.65rem;
+    letter-spacing: 0.5px;
+  }
+}
+
+/* ==========================================================================
+   CAPTURE & MODEL VIEW UI
+   ========================================================================== */
+
+#capture-ui {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  transition: opacity 0.5s ease;
+}
+
+#capture-ui.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.capture-button {
+  background: rgba(6, 6, 12, 0.8);
+  border: 1px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  padding: 16px 32px;
+  border-radius: 8px;
+  font-family: var(--font-outfit);
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.2), inset 0 0 10px rgba(0, 255, 204, 0.1);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.capture-button:hover {
+  background: rgba(0, 255, 204, 0.15);
+  box-shadow: 0 0 30px rgba(0, 255, 204, 0.4), inset 0 0 15px rgba(0, 255, 204, 0.3);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.capture-button:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+#topology-scan-ui {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 45;
+  width: 300px;
+  text-align: center;
+  transition: opacity 0.5s ease;
+}
+
+#topology-scan-ui.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.topology-text {
+  font-family: var(--font-outfit);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--neon-cyan);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+}
+
+.topology-bar-container {
+  width: 100%;
+  height: 6px;
+  background: rgba(6, 6, 12, 0.8);
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+}
+
+.topology-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--neon-cyan);
+  box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+#countdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+  pointer-events: none;
+}
+
+#countdown-overlay.hidden {
+  display: none;
+}
+
+.countdown-text {
+  font-size: 12rem;
+  font-family: var(--font-outfit);
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 0 40px var(--neon-cyan), 0 0 80px var(--neon-cyan);
+  animation: pulse-countdown 1s infinite cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pulse-countdown {
+  0% { transform: scale(1.5); opacity: 0; }
+  20% { transform: scale(1); opacity: 1; }
+  80% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.8); opacity: 0; }
+}
+
+.camera-flash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #fff;
+  opacity: 0;
+  z-index: 201;
+}
+
+.camera-flash.flash-active {
+  animation: flash-anim 0.8s ease-out;
+}
+
+@keyframes flash-anim {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
