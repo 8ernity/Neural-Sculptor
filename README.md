@@ -1,4 +1,7 @@
-# 🧠 Neural Sculptor
+<h2 style="margin:0;">
+  <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f9e0/512.gif" alt="🧠" width="35" style="vertical-align:-4px;">
+  Neural Sculptor
+</h2>
 
 **Neural Sculptor** is a real-time, browser-based AI facial topology engine that transforms a live webcam feed into an interactive, 3D WebGL sculpture. Using advanced machine learning models (TensorFlow.js and MediaPipe), the application maps 468 precise facial landmarks, constructing a live digital twin that responds perfectly to your facial expressions.
 
