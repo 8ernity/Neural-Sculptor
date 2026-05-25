@@ -6,7 +6,10 @@ When ready, users can scan their facial geometry to generate a highly detailed, 
 
 <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%">
 
-## ✨ Features
+<h2 style="margin:0;">
+  <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2728/512.gif" alt="✨" width="25" style="vertical-align:-4px;">
+  Features
+</h2>
 
 - **Live Facial Tracking**: High-performance, 468-point facial landmark tracking running entirely client-side using TensorFlow.js and MediaPipe.
 - **Cyberpunk Holographic Mode**: Idle mode features a dynamic, glassmorphic wireframe mesh illuminated by a real-time RGB neon lighting rig.
@@ -17,7 +20,10 @@ When ready, users can scan their facial geometry to generate a highly detailed, 
 
 <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%">
 
-## 🚀 Getting Started
+<h2 style="margin:0;">
+  <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f680/512.gif" alt="🚀" width="28" style="vertical-align:-4px;">
+  Getting Started
+</h2>
 
 Neural Sculptor runs entirely in the browser and requires no server-side processing for the AI models. 
 
@@ -51,7 +57,10 @@ You will need a local development server to serve the files, as modern browsers 
 
 <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%">
 
-## 🛠️ Technology Stack
+<h2 style="margin:0;">
+  <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f6e0_fe0f/512.gif" alt="🛠️" width="28" style="vertical-align:-4px;">
+  Technology Stack
+</h2>
 
 - **HTML5 & CSS3**: Custom styling, glassmorphism UI, and smooth CSS transitions.
 - **JavaScript (ES6+)**: Core application logic and async model loading.
